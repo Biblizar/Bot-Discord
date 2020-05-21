@@ -22,7 +22,7 @@ async def on_raw_reaction_add(payload):
     javascript_role = get(bot.get_guild(payload.guild_id).roles, name="Javascript")
     member = bot.get_guild(payload.guild_id).get_member(payload.user_id)
     print(message, canal)
-    if canal == 712846557996646410 and message == 712846751408848970:
+    if canal == "id du channel" and message == "id du message":
         if emoji == "python":
             await member.add_roles(python_role)
         elif emoji == "php":
@@ -40,7 +40,7 @@ async def on_raw_reaction_remove(payload):
     javascript_role = get(bot.get_guild(payload.guild_id).roles, name="Javascript")
 
     member = bot.get_guild(payload.guild_id).get_member(payload.user_id)
-    if canal == 712846557996646410 and message == 712846751408848970:
+    if canal == "id du channel" and message == "id du message":
         if emoji == "python":
             await member.remove_roles(python_role)
         elif emoji == "php":
@@ -59,16 +59,16 @@ async def regles(ctx):
 
 @bot.command()
 async def modo(ctx):
-    modo_role = get(bot.get_guild(712841543064485939).roles, name="Modo").mention
+    modo_role = get(bot.get_guild("ID du serveur).roles, name="Modo").mention
     embed = discord.Embed(
         title='Les Modérateurs du Discord',
         description = f'Si tu as un problème n\'hésite pas à contacter un des {modo_role} si dessous',
         color=discord.Colour.red()
     )
     embed.set_author(name='BibliBot')
-    embed.add_field(name='Admin du discord', value='@NicolasRz', inline=True)
-    embed.add_field(name='Chevelure divine',value='@Djohn', inline=True)
-    embed.add_field(name='Akinator',value='@Mikaël', inline=True)
+    embed.add_field(name='Admin', value='@NicolasRz', inline=True)
+    embed.add_field(name='Modérateur1',value='@Djohn', inline=False)
+    embed.add_field(name='Modérateur2',value='@Mikaël', inline=False)
 
     await ctx.send(embed=embed)
 
@@ -79,7 +79,7 @@ async def bienvenue(ctx, new_member: discord.Member):
     await ctx.send(f"Bienvenue {pseudo} la commande $regles et $help sont la pour toi")
 
 #donner le jeton pour qu'il se connecte
-jeton = "NzEyODQ0MTgwNjQwMTA0NTE4.XsXeHg.Iw15ECSxhkjzKa34n5_6jEmUjww"
+jeton = "jeton du bot"
 
 print("Lancement du bot")
 
