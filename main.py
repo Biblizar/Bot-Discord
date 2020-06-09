@@ -1,31 +1,51 @@
 #on importe le module discord
+import asyncio
+import json
 import discord
+from fonctions import set
 from discord.utils import get
 from discord.ext import commands
 
-#on crée une instance du Bot
-bot = commands.Bot(command_prefix='$')
+
+#on charge le fichier json contenant le token de l'application
+with open("token.json","r") as conffile:
+    config = json.load(conffile)
+
+#on crée une instance du Bot et on applique un prefix
+bot = commands.Bot(command_prefix='$', description="Voici les différentes commandes utilisables a l'heure actuelle")
+bot.remove_command('help')
+
+
+startup_extensions = ["fonctions.help","fonctions.sondage", "fonctions.set", "fonctions.welcome", "fonctions.rules"]
+
+async def my_background_task(self):
+    with open("config.json", "r") as outfiler:
+        serv_param = json.load(outfiler)
+
+    await self.wait_until_ready()
+    counter = 0
+    channel = self.get_channel(serv_param['channel'])  # channel ID goes here
+    while not self.is_closed():
+        counter += 1
+        await channel.send(counter)
+        await asyncio.sleep(60)  # task runs every 60 seconds
+
+
+
 
 @bot.event
 async def on_ready():
-    print("Bot pret")
-
-
-@bot.command()
-@commands.has_role("Modo")
-async def set(ctx):
-    global new_channel_role
-    global new_role_message
-    message = await ctx.send("Ce message est le message de choix de role")
-    new_role_message = message.id
-    print(new_role_message)
-    new_channel_role = message.channel.id
-    print(new_channel_role)
-
-
+    print('en ligne en tant que')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
+    activity = discord.Game(name="cherche un job")
+    await bot.change_presence(status=discord.Status.online, activity=activity)
 
 @bot.event
 async def on_raw_reaction_add(payload):
+    with open("config.json", "r") as outfiler:
+        serv_param = json.load(outfiler)
     emoji = payload.emoji.name
     canal = payload.channel_id
     message = payload.message_id
@@ -33,9 +53,9 @@ async def on_raw_reaction_add(payload):
     php_role = get(bot.get_guild(payload.guild_id).roles, name="Php")
     javascript_role = get(bot.get_guild(payload.guild_id).roles, name="Javascript")
     member = bot.get_guild(payload.guild_id).get_member(payload.user_id)
-    print(f"L'id du channel:{new_channel_role} et l'id du message: {new_role_message}")
+    print(f"L'id du channel:{serv_param['channel']} et l'id du message: { serv_param['message'] }")
     print(message, canal)
-    if canal == new_channel_role and message == new_role_message:
+    if canal == serv_param['channel'] and message == serv_param['message']:
         if emoji == "python":
             await member.add_roles(python_role)
         elif emoji == "php":
@@ -45,6 +65,8 @@ async def on_raw_reaction_add(payload):
 
 @bot.event
 async def on_raw_reaction_remove(payload):
+    with open("config.json", "r") as outfiler:
+        serv_param = json.load(outfiler)
     emoji = payload.emoji.name
     canal = payload.channel_id
     message = payload.message_id
@@ -53,7 +75,7 @@ async def on_raw_reaction_remove(payload):
     javascript_role = get(bot.get_guild(payload.guild_id).roles, name="Javascript")
 
     member = bot.get_guild(payload.guild_id).get_member(payload.user_id)
-    if canal == new_channel_role and message == new_role_message:
+    if canal == serv_param['channel'] and message == serv_param['message']:
         if emoji == "python":
             await member.remove_roles(python_role)
         elif emoji == "php":
@@ -63,17 +85,8 @@ async def on_raw_reaction_remove(payload):
 
 
 @bot.command()
-async def regles(ctx):
-    embed = discord.Embed(
-        title='Les régles',
-        description = '1.Pas de spam\n2.Respecter les channels et leurs utilisation',
-        color=discord.Colour.blurple()
-    )
-    await ctx.send(embed=embed)
-
-@bot.command()
 async def modo(ctx):
-    modo_role = get(bot.get_guild("THE GUILD ID HERE").roles, name="Modo").mention
+    modo_role = get(bot.get_guild("GUILD ID HERE").roles, name="Modo").mention
     embed = discord.Embed(
         title='Les Modérateurs du Discord',
         description = f'Si tu as un problème n\'hésite pas à contacter un des {modo_role} ci dessous',
@@ -87,14 +100,14 @@ async def modo(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command()
-async def bienvenue(ctx, new_member: discord.Member):
-    pseudo = new_member.mention
-    await ctx.send(f"Bienvenue {pseudo} la commande $regles et $help sont la pour toi")
-
-#donner le jeton pour qu'il se connecte
-jeton = "ENTER YOUR TOKEN HERE"
+if __name__ == "__main__":
+    for extension in startup_extensions:
+        try:
+            bot.load_extension(extension)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            print('Failed to load extension {}\n{}'.format(extension, exc))
 
 print("Lancement du bot")
-
-bot.run(jeton)
+#donner le jeton pour qu'il se connecte
+bot.run(config["token"])
