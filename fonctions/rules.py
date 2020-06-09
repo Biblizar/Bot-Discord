@@ -11,6 +11,7 @@ class Rules(commands.Cog):
 
     @commands.command()
     async def regles(self,ctx):
+        await ctx.message.delete()
         embed = discord.Embed(
             title='Les régles',
             description='1.Pas de spam\n2.Respecter les channels et leurs utilisation',

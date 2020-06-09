@@ -11,6 +11,7 @@ class Welcome(commands.Cog):
 
     @commands.command()
     async def bienvenue(self, ctx, new_member: discord.Member):
+        await ctx.message.delete()
         pseudo = new_member.mention
         await ctx.send(
             f"Bienvenue {pseudo}, si tu as besoin d'aide n'hésite pas à poser des questions ou utiliser les commandes $regles et $help")

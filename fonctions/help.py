@@ -8,6 +8,7 @@ class Help(commands.Cog):
 
     @commands.command(pass_context=True)
     async def help(self, ctx):
+        await ctx.message.delete()
         # retour en privée l'integralité des commandes disponible pour le bot
         embed = discord.Embed(
             colour=discord.Colour.red()
