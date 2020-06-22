@@ -9,7 +9,7 @@ class Sondage(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def sondage(self, ctx, *, msg="help"):
         if msg != "help":
             await ctx.message.delete()
@@ -91,6 +91,12 @@ class Sondage(commands.Cog):
                                description=text,
                                colour=0xEEEEEE)
             await ctx.send(embed=em)
+
+
+    @sondage.error
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Le format du sondage est $sondage Question? |Réponse1|Réponse2")
 
 
 def setup(bot):

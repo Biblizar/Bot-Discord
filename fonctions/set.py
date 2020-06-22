@@ -5,19 +5,37 @@ class Setting(commands.Cog):
     """Commandes set."""
     def __init__(self, bot):
         self.bot = bot
-    @commands.command(pass_context=True)
-    @commands.has_role("Modo")
-    async def set(self, ctx):
+
+    @commands.command()
+    @commands.is_owner()
+    async def set(self, ctx, *, msg):
+        splitting_message = msg.split(" | ")
+        id_server = ctx.message.channel.guild.id
+        with open("config.json", "r") as f:
+            config = json.load(f)
         await ctx.message.delete()
-        set_message = await ctx.send("Vous pouvez choisir parmis les différentes réactions pour avoir accès aux salons correspondants")
-        role_message = set_message.id
-        print(role_message)
-        channel_role = set_message.channel.id
-        print(channel_role)
-        changed ={"channel": channel_role,"message": role_message}
-        with open('config.json','w') as outfile:
-            json.dump(changed, outfile)
+        set_message = await ctx.send(splitting_message[0])
+
+        if str(id_server) in config:
+            config[str(id_server)]["message"] = set_message.id
+            config[str(id_server)]["channel"] = set_message.channel.id
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=2)
+        else:
+            config[str(id_server)] = {}
+            config[str(id_server)]["message"] = set_message.id
+            config[str(id_server)]["channel"] = set_message.channel.id
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=2)
+
+
+        config[str(id_server)]["emot_role"] = {}
+        for splitted_message in splitting_message[1:]:
+            emot_role = splitted_message.split(" : ")
+            config[str(id_server)]["emot_role"][emot_role[0]] = emot_role[1]
+            await set_message.add_reaction(emot_role[0])
+        with open("config.json", "w") as f:
+            json.dump(config, f, indent=2)
 
 def setup(bot):
     bot.add_cog(Setting(bot))
-

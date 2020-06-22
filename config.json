@@ -1,0 +1,11 @@
+{
+  "123456789": {
+    "message": 789456123,
+    "channel": 123456789865,
+    "modo_role": "Modo",
+    "regles": [
+      "Regle 1",
+      "Regle 2"
+    ]
+  }
+}
