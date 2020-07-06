@@ -16,7 +16,7 @@ bot.remove_command('help')
 
 
 startup_extensions = ["fonctions.help","fonctions.sondage", "fonctions.set", "fonctions.welcome", "fonctions.rules",
-                       "fonctions.Modo"]
+                       "fonctions.Modo","fonctions.update"]
 
 async def my_background_task(self):
     with open("config.json", "r") as outfiler:
@@ -38,8 +38,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    activity = discord.Game(name="chercher un job pour le site")
-    await bot.change_presence(status=discord.Status.online, activity=activity)
+    await bot.change_presence(status=discord.Status.online)
 
 
 @bot.event

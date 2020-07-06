@@ -9,15 +9,18 @@ class Modo(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.is_owner()
-    async def roleModo(self, ctx, msg="help"):
-        id_server = ctx.message.channel.guild.id
-        await ctx.message.delete()
-        config_file = open("config.json", "r")
-        json_object = json.load(config_file)
-        config_file.close()
-        if msg != "help":
+    async def roleModo(self, ctx, msg):
+        guild_owner = ctx.message.guild.owner
+        member = ctx.message.author
+        if member == guild_owner:
+            print(msg)
+            config_file = open("config.json", "r")
+            json_object = json.load(config_file)
+            config_file.close()
+            id_server = ctx.message.channel.guild.id
+            await ctx.message.delete()
             modo_role = msg
+            print(modo_role)
             if get(ctx.guild.roles, name=f"{modo_role}"):
                 await ctx.send('Le role existe et sera défini comme role modérateur')
                 if str(id_server) in json_object:
@@ -29,7 +32,7 @@ class Modo(commands.Cog):
                 json.dump(json_object, config_file, indent=2)
                 config_file.close()
             else:
-                await ctx.send("Ce role n'existe pas")
+                await ctx.send("Je n'arrive pas à trouver le role, si le role contient des espaces, merci de le mettre entre guillemets")
 
     @roleModo.error
     async def on_command_error(self, ctx, error):
@@ -44,21 +47,23 @@ class Modo(commands.Cog):
         config_file.close()
         id_server = ctx.message.channel.guild.id
         guild_owner = ctx.message.guild.owner
-        modo_role = get(self.bot.get_guild(id_server).roles, name=f"{json_object[str(id_server)]['modo_role']}")
-        embed = discord.Embed(
-            title='Les Modérateurs du Discord',
-            description=f'Si tu as un problème n\'hésite pas à contacter un des {modo_role.mention} ci dessous',
-            color=modo_role.color
-        )
-        embed.set_author(name='BibliBot')
-        embed.add_field(name='Admin du discord', value=f'{guild_owner.mention}', inline=True)
-        for member in modo_role.members:
-            if member != guild_owner:
-                embed.add_field(name=f'{modo_role}', value=f'{member.mention}', inline=True)
-        await ctx.message.delete()
+        try:
+            modo_role = get(self.bot.get_guild(id_server).roles, name=f"{json_object[str(id_server)]['modo_role']}")
+            embed = discord.Embed(
+                title='Les Modérateurs du Discord',
+                description=f'Si tu as un problème n\'hésite pas à contacter un des {modo_role.mention} ci dessous',
+                color=modo_role.color
+            )
+            embed.set_author(name='BibliBot')
+            embed.add_field(name='Admin du discord', value=f'{guild_owner.mention}', inline=True)
+            for member in modo_role.members:
+                if member != guild_owner:
+                    embed.add_field(name=f'{modo_role}', value=f'{member.mention}', inline=True)
+            await ctx.message.delete()
 
-        await ctx.send(embed=embed)
-
+            await ctx.send(embed=embed)
+        except:
+            await ctx.send("Le bot ne peut afficher les noms des modérateurs")
 
 
 def setup(bot):
